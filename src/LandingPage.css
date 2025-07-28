@@ -1,0 +1,87 @@
+.landing-container {
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  text-align: center;
+  padding: 1rem;
+}
+
+.landing-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #004aad;
+  color: white;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.login-btn, .cta-btn {
+  background-color: white;
+  color: #004aad;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.login-btn:hover, .cta-btn:hover {
+  background-color: #e6e6e6;
+}
+
+.landing-header {
+  padding: 3rem 1rem;
+  background: linear-gradient(to right, #004aad, #0074e4);
+  color: white;
+}
+.landing-header h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+.landing-header p {
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+}
+
+.features-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.feature {
+  background-color: #f4f4f4;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+.counters-section {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: 3rem 0;
+  background: #f9f9f9;
+  padding: 2rem;
+}
+.counter-box {
+  text-align: center;
+}
+.counter {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #004aad;
+}
+
+.landing-footer {
+  padding: 1rem;
+  background-color: #ddd;
+  margin-top: 2rem;
+}
