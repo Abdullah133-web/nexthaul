@@ -1,5 +1,6 @@
 import React from 'react';
-import { useUserRole } from './hooks/useUserRole';
+// 🔥 FIXED: added `.ts` extension
+import { useUserRole } from './hooks/useUserRole.ts';
 
 const RoleBasedDashboard = () => {
   const { role, loading } = useUserRole();

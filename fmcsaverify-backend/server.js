@@ -4,17 +4,21 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
-const PORT = 5000;
+
+const PORT = process.env.PORT || 5000;
 
 app.get('/verify/:dot', async (req, res) => {
   const dotNumber = req.params.dot;
-
   if (!dotNumber) return res.status(400).json({ error: 'DOT number required' });
 
   const url = `https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_param=USDOT&query_string=${dotNumber}`;
 
   try {
-    const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
 
@@ -30,14 +34,18 @@ app.get('/verify/:dot', async (req, res) => {
     }
 
     res.json({
-      dot: dotNumber,
+      dot_number: dotNumber,
       legal_name: legalNameMatch[1].trim(),
       operating_status: statusMatch[1].trim(),
     });
   } catch (err) {
-    console.error(err);
+    console.error('Scraper error:', err.message);
     res.status(500).json({ error: 'Failed to fetch data' });
   }
+});
+
+app.get('/', (req, res) => {
+  res.send('✅ FMCSA backend is running!');
 });
 
 app.listen(PORT, () => {

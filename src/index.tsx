@@ -5,20 +5,30 @@ import RootApp from './RootApp';
 import reportWebVitals from './reportWebVitals';
 import ReactGA from 'react-ga4';
 
-// Initialize Google Analytics
+// ✅ Google Analytics
 const MEASUREMENT_ID = 'G-N4JEFWM0PX';
-ReactGA.initialize(MEASUREMENT_ID);
+if (MEASUREMENT_ID) {
+  ReactGA.initialize(MEASUREMENT_ID);
+}
 
-// Optional: Auto apply dark mode if system prefers it
-const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-document.body.classList.toggle('dark-mode', prefersDark);
+// ✅ Dark Mode Toggle (optional but clean)
+if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+  document.body.classList.add('dark-mode');
+} else {
+  document.body.classList.remove('dark-mode');
+}
 
-// Mount app
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-  <React.StrictMode>
-    <RootApp />
-  </React.StrictMode>
-);
+// ✅ React 18 createRoot API
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <RootApp />
+    </React.StrictMode>
+  );
+} else {
+  console.error("❌ Root element not found!");
+}
 
 reportWebVitals();
