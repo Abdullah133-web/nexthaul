@@ -14,7 +14,7 @@ function FMCSAVerifier() {
     setError('');
 
     try {
-      const response = await fetch(`https://fmcsaverify-backend.onrender.com`, {
+      const response = await fetch(`https://fmcsaverify-backend-v2.onrender.com/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dotNumber }),
@@ -26,7 +26,11 @@ function FMCSAVerifier() {
         setError('Carrier not found or failed to verify.');
         setCarrier(null);
       } else {
-        setCarrier(data);
+        setCarrier({
+          legal_name: data.legal_name,
+          dot_number: dotNumber,
+          operating_status: data.operating_status,
+        });
       }
     } catch (err) {
       console.error('Error verifying carrier:', err);
