@@ -1,47 +1,41 @@
-import React, { useState } from 'react';
-import { supabase } from './supabaseClient';
+import React from 'react';
+import './LandingPage.css';
+import { Link } from 'react-router-dom';
 
-function InviteForm({ brokerId }) {
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('driver');
-  const [link, setLink] = useState('');
-
-  const handleInvite = async () => {
-    if (!email) return;
-
-    const { data, error } = await supabase.from('invites').insert([
-      { email, role, invited_by: brokerId }
-    ]);
-
-    if (!error) {
-      const url = `${window.location.origin}/signup?invited_by=${brokerId}&role=${role}`;
-      setLink(url);
-    }
-  };
-
+function LandingPage({ onStart }) {
   return (
-    <div>
-      <h2>📨 Invite a Driver or Carrier</h2>
-      <input
-        type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        placeholder="Enter their email"
-        style={{ padding: '8px' }}
-      />
-      <select value={role} onChange={e => setRole(e.target.value)} style={{ marginLeft: '10px', padding: '8px' }}>
-        <option value="driver">Driver</option>
-        <option value="carrier">Carrier</option>
-      </select>
-      <button onClick={handleInvite} style={{ marginLeft: '10px' }}>Send Invite</button>
-      {link && (
-        <div style={{ marginTop: '1rem' }}>
-          ✅ Share this link: <br />
-          <code>{link}</code>
+    <div className="landing-container">
+      {/* ... all other sections ... */}
+
+      <footer className="footer">
+        <div className="footer-section">
+          <h4>About Nexthaul</h4>
+          <p>Nexthaul simplifies logistics for carriers, brokers, and drivers across the U.S.</p>
         </div>
-      )}
+
+        <div className="footer-section">
+          <h4>Contact</h4>
+          <p>Email: <a href="mailto:support@nexthaul.net">support@nexthaul.net</a></p>
+        </div>
+
+        <div className="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/privacy">Privacy Policy</Link></li>
+            <li><Link to="/terms">Terms of Service</Link></li>
+          </ul>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} Nexthaul. All rights reserved.</p>
+          <p style={{ fontSize: '12px', color: 'gray', marginTop: '0.5rem' }}>
+            *Nexthaul is not affiliated with or endorsed by the Federal Motor Carrier Safety Administration (FMCSA).
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
 
-export default InviteForm;
+export default LandingPage;

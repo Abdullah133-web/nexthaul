@@ -5,20 +5,21 @@ import RootApp from './RootApp';
 import reportWebVitals from './reportWebVitals';
 import ReactGA from 'react-ga4';
 
-// ✅ Google Analytics
+// ✅ Google Analytics for NextHaul
 const MEASUREMENT_ID = 'G-N4JEFWM0PX';
 if (MEASUREMENT_ID) {
   ReactGA.initialize(MEASUREMENT_ID);
+  ReactGA.send("pageview");
 }
 
-// ✅ Dark Mode Toggle (optional but clean)
+// ✅ Optional: Set dark mode based on system preference
 if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
   document.body.classList.add('dark-mode');
 } else {
   document.body.classList.remove('dark-mode');
 }
 
-// ✅ React 18 createRoot API
+// ✅ React 18 root rendering
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
@@ -28,7 +29,8 @@ if (rootElement) {
     </React.StrictMode>
   );
 } else {
-  console.error("❌ Root element not found!");
+  console.error("❌ Root element not found! Make sure your index.html has <div id='root'></div>");
 }
 
+// ✅ Optional: Web Vitals reporting
 reportWebVitals();

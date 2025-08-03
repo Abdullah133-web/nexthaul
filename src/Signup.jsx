@@ -1,60 +1,91 @@
-// Signup.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
-import { useSearchParams } from 'react-router-dom';
 
 export default function Signup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [searchParams] = useSearchParams();
-  const [role, setRole] = useState('driver'); // default role
-  const [referrer, setReferrer] = useState(null);
-  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    role: '',
+    llc_name: '',
+    mc_dot: '',
+    phone: ''
+  });
 
-  useEffect(() => {
-    const r = searchParams.get('ref');
-    const ro = searchParams.get('role');
-    if (r) setReferrer(r);
-    if (ro) setRole(ro);
-  }, [searchParams]);
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
 
   const handleSignup = async () => {
-    const { data, error } = await supabase.auth.signUp({
+    const { email, password, role, llc_name, mc_dot, phone } = formData;
+
+    // Create account
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
-      password,
-      options: {
-        data: {
-          role,
-          referred_by: referrer,
-        },
-      },
+      password
     });
-    if (error) return alert(error.message);
-    setSuccess(true);
+
+    if (signUpError) {
+      alert('Signup failed: ' + signUpError.message);
+      return;
+    }
+
+    const user = signUpData.user;
+
+    // Insert profile into SQL table
+    const { error: insertError } = await supabase.from('profiles').insert([
+      {
+        id: user.id,
+        email,
+        role,
+        llc_name,
+        mc_dot,
+        phone
+      }
+    ]);
+
+    if (insertError) {
+      alert('Profile insert failed: ' + insertError.message);
+      return;
+    }
+
+    alert('Signup successful!');
+    navigate('/dashboard');
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '2rem auto', textAlign: 'center' }}>
-      <h2>Create Account</h2>
-      {referrer && <p>You're joining with referral from: <strong>{referrer}</strong></p>}
-      <input
-        type="email"
-        placeholder="Email"
-        style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem' }}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleSignup} style={{ width: '100%', padding: '0.5rem' }}>
+    <div style={{ maxWidth: '500px', margin: '2rem auto' }}>
+      <h2 style={{ textAlign: 'center' }}>Sign Up</h2>
+      
+      <input name="email" placeholder="Email" value={formData.email} onChange={handleChange} style={inputStyle} />
+      <input name="password" type="password" placeholder="Password" value={formData.password} onChange={handleChange} style={inputStyle} />
+      
+      <select name="role" value={formData.role} onChange={handleChange} style={inputStyle}>
+        <option value="">Select Role</option>
+        <option value="driver">Driver</option>
+        <option value="broker">Broker</option>
+        <option value="carrier">Carrier</option>
+        <option value="fleet_owner">Fleet Owner</option>
+        <option value="owner_operator">Owner Operator</option>
+      </select>
+      
+      <input name="llc_name" placeholder="LLC Name" value={formData.llc_name} onChange={handleChange} style={inputStyle} />
+      <input name="mc_dot" placeholder="MC or DOT Number" value={formData.mc_dot} onChange={handleChange} style={inputStyle} />
+      <input name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} style={inputStyle} />
+
+      <button onClick={handleSignup} style={{ width: '100%', padding: '0.75rem', marginTop: '1rem' }}>
         Sign Up
       </button>
-      {success && <p style={{ color: 'green', marginTop: '1rem' }}>Signup successful! Check your email to confirm.</p>}
     </div>
   );
 }
+
+const inputStyle = {
+  width: '100%',
+  marginBottom: '0.75rem',
+  padding: '0.5rem'
+};

@@ -1,0 +1,148 @@
+/* Container */
+.contact-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Content Wrapper */
+.contact-content {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.6s ease-in-out forwards;
+}
+
+.contact-content h1 {
+  text-align: center;
+  color: #101820;
+  margin-bottom: 0.5rem;
+}
+
+.contact-content p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Form */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form label {
+  margin: 0.5rem 0 0.25rem;
+  font-weight: 500;
+  color: #101820;
+}
+
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus,
+.contact-form select:focus {
+  border-color: #f9c91e;
+  outline: none;
+}
+
+.contact-form button {
+  padding: 0.75rem;
+  background-color: #f9c91e;
+  color: #101820;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+  background-color: #e0b713;
+}
+
+/* Error & Status */
+.error-msg {
+  color: #d8000c;
+  background-color: #ffd2d2;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.status-msg {
+  color: #333;
+  background-color: #e7f3fe;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Success Popup */
+.success-popup {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #dff0d8;
+  color: #3c763d;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.4s ease, fadeOut 1s ease 3s forwards;
+  z-index: 1000;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .contact-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}

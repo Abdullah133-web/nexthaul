@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import './App.css';
 import jsPDF from 'jspdf';
@@ -9,7 +10,7 @@ import {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-function AdminDashboard() {
+function AdminDashboard({ handleLogout, user }) {
   const [users, setUsers] = useState([]);
   const [loads, setLoads] = useState([]);
   const [documents, setDocuments] = useState([]);
@@ -19,15 +20,46 @@ function AdminDashboard() {
   const [announcement, setAnnouncement] = useState('');
   const [announcements, setAnnouncements] = useState([]);
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
+
+    const userSubscription = supabase
+      .channel('users-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(userSubscription);
+    };
   }, []);
 
   useEffect(() => {
     document.body.className = darkMode ? 'dark-mode' : '';
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
+useEffect(() => {
+  const userChannel = supabase
+    .channel('public:users')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'users' },
+      (payload) => {
+        console.log('User table change:', payload);
+        fetchData(); // refreshes UI
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(userChannel);
+  };
+}, []);
 
   const fetchData = async () => {
     const { data: userData } = await supabase.rpc('get_all_users');
@@ -101,6 +133,11 @@ function AdminDashboard() {
     return result;
   };
 
+  const filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.role || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const filteredLoads = filterLoadsByDate();
   const totalRevenue = filteredLoads.reduce((sum, l) => sum + parseFloat(l.rate || 0), 0);
   const deliveredRevenue = filteredLoads.filter(l => l.status === 'delivered').reduce((sum, l) => sum + parseFloat(l.rate || 0), 0);
@@ -124,15 +161,23 @@ function AdminDashboard() {
 
   return (
     <div className={`container ${darkMode ? 'dark-mode' : ''}`}>
-      <button onClick={() => setDarkMode(!darkMode)} className="toggle-btn">Toggle {darkMode ? 'Light' : 'Dark'} Mode</button>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <img src="/logo.png" alt="Logo" style={{ height: '40px' }} />
+        <div>
+          <button onClick={() => setDarkMode(!darkMode)} className="toggle-btn">
+            Toggle {darkMode ? 'Light' : 'Dark'} Mode
+          </button>
+          <button onClick={() => navigate('/dashboard')} style={{ marginLeft: '1rem' }}>🔙 Back to Dashboard</button>
+          <button onClick={handleLogout} style={{ marginLeft: '1rem' }}>🚪 Logout</button>
+        </div>
+      </header>
+
       <h1>🛠️ Admin Dashboard</h1>
 
-      {/* Filters */}
       <section>
         <h3>📅 Filter Revenue by Date</h3>
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-
         <h3>💸 Filter Loads by Payment Status</h3>
         <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
           <option value="all">All</option>
@@ -141,114 +186,25 @@ function AdminDashboard() {
         </select>
       </section>
 
-      {/* Overdue Loads */}
-      {overdueLoads.length > 0 && (
-        <section className="overdue">
-          <h3>⚠️ Overdue Loads (Unpaid > 7 days)</h3>
-          <ul>
-            {overdueLoads.map((l) => (
-              <li key={l.id}>{l.pickup_location} → {l.dropoff_location} | {new Date(l.created_at).toLocaleDateString()}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Stats */}
       <section>
-        <h2>📊 Platform Stats</h2>
-        <p><strong>Total Users:</strong> {users.length}</p>
-        <p><strong>Total Loads:</strong> {loads.length}</p>
-        <p><strong>Delivered Loads:</strong> {loads.filter(l => l.status === 'delivered').length}</p>
-        <p><strong>Total Revenue:</strong> ${totalRevenue.toLocaleString()}</p>
-        <p><strong>Delivered Revenue:</strong> ${deliveredRevenue.toLocaleString()}</p>
-        <p><strong>Pending Revenue:</strong> ${pendingRevenue.toLocaleString()}</p>
+        <h2>🔎 Search Users</h2>
+        <input
+          type="text"
+          placeholder="Search by email or role..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem' }}
+        />
       </section>
 
-      {/* Announcement */}
-      <section>
-        <h2>📣 Broadcast Announcement</h2>
-        <input type="text" value={announcement} onChange={(e) => setAnnouncement(e.target.value)} placeholder="Enter message..." />
-        <button onClick={handlePostAnnouncement}>Send</button>
-        <ul>
-          {announcements.map((a) => (
-            <li key={a.id}>{new Date(a.created_at).toLocaleString()}: {a.message}</li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Revenue Charts */}
-      <section>
-        <h2>💰 Revenue by Trailer Type</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={100} fill="#8884d8" label>
-              {pieData.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Legend />
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </section>
-
-      <section>
-        <h2>📈 Revenue Over Time</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="rate" fill="#82ca9d" />
-          </BarChart>
-        </ResponsiveContainer>
-      </section>
-
-      {/* Users */}
       <section>
         <h2>👥 All Users</h2>
         <ul>
-          {users.map(user => (
+          {filteredUsers.map(user => (
             <li key={user.id}>{user.email} – Role: {user.role || 'unknown'}</li>
           ))}
         </ul>
       </section>
-
-      {/* Loads */}
-      <section>
-        <h2>📦 All Loads</h2>
-        {filteredLoads.length === 0 ? <p>No loads available.</p> : (
-          <ul>
-            {filteredLoads.map(load => (
-              <li key={load.id}>
-                {load.pickup_location} → {load.dropoff_location} (${load.rate}) –
-                <strong> {load.payment_status === 'paid' ? '✅ Paid' : '❌ Unpaid'}</strong>
-                <button onClick={() => togglePaymentStatus(load)}>Toggle</button>
-                <button onClick={() => handleDeleteLoad(load.id)}>❌ Delete</button>
-                <button onClick={() => generatePDF(load)}>📄 PDF</button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Documents */}
-      <section>
-        <h2>📁 All Documents</h2>
-        {documents.length === 0 ? <p>No documents found.</p> : (
-          <ul>
-            {documents.map((doc) => (
-              <li key={doc.name}>
-                <a href={`https://lairuysrnpsuzylttgdm.supabase.co/storage/v1/object/public/documents/${doc.name}`} target="_blank" rel="noreferrer">{doc.name}</a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <footer>
-        <p>Built by Nexthaul Team © {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 }

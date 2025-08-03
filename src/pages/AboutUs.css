@@ -1,0 +1,104 @@
+.about-container {
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+  background: #fdfdfd;
+}
+
+.about-hero {
+  background: linear-gradient(135deg, #101820, #232931);
+  color: white;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.about-hero h1 {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+}
+
+.about-hero .tagline {
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+.founder-section,
+.mission-section,
+.why-section,
+.journey-section,
+.achievements-section {
+  max-width: 1000px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.founder-card {
+  background: #fff;
+  padding: 2rem;
+  border-left: 6px solid #f9c91e;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 10px;
+}
+
+.founder-card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+}
+
+.founder-card p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.mission-section h2,
+.why-section h2,
+.journey-section h2,
+.achievements-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.mission-section p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.why-section ul,
+.achievements-section ul {
+  list-style: none;
+  padding: 0;
+  line-height: 2;
+}
+
+.timeline {
+  border-left: 3px solid #f9c91e;
+  margin-left: 1rem;
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.timeline-item .dot {
+  width: 14px;
+  height: 14px;
+  background: #f9c91e;
+  border-radius: 50%;
+  position: absolute;
+  left: -31px;
+  top: 5px;
+}
+
+.timeline-item .content h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #101820;
+}
+
+.timeline-item .content p {
+  margin: 0.5rem 0 0;
+  color: #555;
+}
